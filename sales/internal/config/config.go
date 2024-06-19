@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	env "github.com/joho/godotenv"
 )
 
-type cfg struct {
+type Cfg struct {
 	DatabaseURL string `env:"DATABASE_URL"`
 }
 
-func config(ctx context.Context) (cfg, error) {
+func Config(ctx context.Context) (Cfg, error) {
 	err := env.Load()
 	if err != nil {
-		return cfg{}, fmt.Errorf("failed to load .env file: %w", err)
+		return Cfg{}, fmt.Errorf("failed to load .env file: %w", err)
 	}
 
-	var cfg cfg
+	var cfg Cfg
 	v := reflect.ValueOf(&cfg).Elem()
 	t := v.Type()
 

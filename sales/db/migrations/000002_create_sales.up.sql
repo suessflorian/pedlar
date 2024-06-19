@@ -12,6 +12,5 @@ CREATE TABLE line_items (
     product_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     unit_price NUMERIC(10, 2) NOT NULL,
-    line_total NUMERIC(10, 2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
     FOREIGN KEY (sale_id) REFERENCES sales (id) ON DELETE CASCADE
 );

@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"context"
@@ -15,7 +15,7 @@ const (
 )
 
 // TODO: connection pool
-func conn(ctx context.Context, url string) (*pgx.Conn, error) {
+func Conn(ctx context.Context, url string) (*pgx.Conn, error) {
 	m, err := migrate.New(MIGRATIONS_DIR, url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to establish migration connection: %w", err)
