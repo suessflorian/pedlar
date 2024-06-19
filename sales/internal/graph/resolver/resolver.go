@@ -1,5 +1,7 @@
 package resolver
 
-//go:generate go run github.com/99designs/gqlgen generate
+import "github.com/jackc/pgx/v5"
 
-type Resolver struct{}
+type Resolver struct {
+	Conn *pgx.Conn
+}

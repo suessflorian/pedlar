@@ -2,9 +2,8 @@ schema:
   - schema/*.graphql
 
 exec:
-  layout: follow-schema
-  dir: generated
-  package: generated
+  filename: generated.go
+  package: graph
 
 model:
   filename: model/models_gen.go
