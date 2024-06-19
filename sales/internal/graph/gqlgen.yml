@@ -1,0 +1,25 @@
+schema:
+  - schema/*.graphql
+
+exec:
+  layout: follow-schema
+  dir: generated
+  package: generated
+
+model:
+  filename: model/models_gen.go
+  package: model
+
+resolver:
+  layout: follow-schema
+  dir: resolver
+  package: resolver
+  filename_template: "{name}.resolvers.go"
+
+models:
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.UUID
