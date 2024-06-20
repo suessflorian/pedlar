@@ -1,7 +1,7 @@
 package resolver
 
-import "github.com/jackc/pgx/v5"
+import "github.com/suessflorian/pedlar/sales/pkg/keys"
 
 type Resolver struct {
-	Conn *pgx.Conn
+	Keys *keys.Holder
 }

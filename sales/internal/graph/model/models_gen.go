@@ -5,22 +5,20 @@ package model
 type Mutation struct {
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type NewSale struct {
+	Items []*NewSaleLineItemSale `json:"items"`
+}
+
+type NewSaleLineItemSale struct {
+	ProductID string `json:"productID"`
+	Quantity  int    `json:"quantity"`
+	UnitPrice int    `json:"unit_price"`
+}
+
+type PaginationInput struct {
+	Cursor string `json:"cursor"`
+	Limit  int    `json:"limit"`
 }
 
 type Query struct {
-}
-
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }

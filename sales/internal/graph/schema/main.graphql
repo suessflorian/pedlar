@@ -1,24 +1,34 @@
-type Todo {
+type Sale {
   id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
+  line_items: [SaleLineItem!]!
 }
 
-type User {
+type SaleLineItem {
   id: ID!
-  name: String!
+  productID: ID!
+  quantity: Int!
+  unit_price: Int!
+}
+
+input PaginationInput {
+  cursor: ID!
+  limit: Int!
 }
 
 type Query {
-  todos: [Todo!]!
+  sales(paginate: PaginationInput): [Sale!]!
 }
 
-input NewTodo {
-  text: String!
-  userId: String!
+input NewSale {
+  items: [NewSaleLineItemSale!]!
+}
+
+input NewSaleLineItemSale {
+  productID: ID!
+  quantity: Int!
+  unit_price: Int!
 }
 
 type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  createSale(input: NewSale!): Sale!
 }

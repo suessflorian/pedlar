@@ -10,16 +10,31 @@ import (
 
 	"github.com/suessflorian/pedlar/sales/internal/graph"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
+	"github.com/suessflorian/pedlar/sales/pkg/model/sale"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+// CreateSale is the resolver for the createSale field.
+func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) (*sale.ExternalSale, error) {
+	panic(fmt.Errorf("not implemented: CreateSale - createSale"))
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+// Sales is the resolver for the sales field.
+func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.ExternalSale, error) {
+	var sales []*sale.ExternalSale
+
+	sale := &sale.Sale{
+		ID: 0,
+		LineItems: []sale.LineItem{
+			{
+				ID:        0,
+				ProductID: 0,
+				Quantity:  12,
+				UnitPrice: 6900,
+			},
+		},
+	}
+	sales = append(sales, sale.External(ctx, r.Keys.ExternalID))
+	return sales, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.
