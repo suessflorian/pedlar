@@ -19,12 +19,12 @@ models:
   Int:
     model:
       - github.com/99designs/gqlgen/graphql.Int
-  UUID:
+  ID:
     model:
-      - github.com/99designs/gqlgen/graphql.UUID
+      - github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID
   Sale:
     model:
-      - github.com/suessflorian/pedlar/sales/pkg/model/sale.ExternalSale
+      - github.com/suessflorian/pedlar/sales/pkg/model/sale.Sale
   SaleLineItem:
     model:
-      - github.com/suessflorian/pedlar/sales/pkg/model/sale.ExternalLineItem
+      - github.com/suessflorian/pedlar/sales/pkg/model/sale.LineItem

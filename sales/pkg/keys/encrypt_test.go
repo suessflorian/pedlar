@@ -20,15 +20,15 @@ func TestEncryptDecrypt(t *testing.T) {
 		curr := KeySet{EncryptionKey: key}
 		holder := Holder{curr: curr}
 
-		var expected = []string{"hello world", "🔥", "this encryption/decryption stuff such an overkill"}
-		cifers, err := holder.encrypt(expected...)
-		require.NoError(t, err)
+		var trials = []string{"hello world", "🔥", "this encryption/decryption stuff such an overkill"}
+		for _, expected := range trials {
+			cifers, err := holder.encrypt(expected)
+			require.NoError(t, err)
 
-		actual, err := holder.decrypt(cifers...)
-		require.NoError(t, err)
+			actual, err := holder.decrypt(string(cifers))
+			require.NoError(t, err)
 
-		for i := range expected {
-			assert.Equal(t, expected[i], actual[i])
+			assert.Equal(t, expected, actual)
 		}
 	})
 
@@ -49,18 +49,23 @@ func TestEncryptDecrypt(t *testing.T) {
 		for i := 0; i < repeats; i++ {
 			cifer, err := holder.encrypt(expected)
 			require.NoError(t, err)
-			cifers = append(cifers, cifer...)
+			cifers = append(cifers, cifer)
 		}
+
 		require.Len(t, cifers, repeats)
 		slices.Sort(cifers)
 		cifers = slices.Compact(cifers)
 		require.Len(t, cifers, repeats)
 
-		target, err := holder.decrypt(cifers...)
-		require.NoError(t, err)
+		var actuals = make([]string, 0, repeats)
+		for _, cifer := range cifers {
+			actual, err := holder.decrypt(cifer)
+			require.NoError(t, err)
+			actuals = append(actuals, actual)
+		}
 
-		target = slices.Compact(target)
-		require.Len(t, target, 1)
+		actuals = slices.Compact(actuals)
+		require.Len(t, actuals, 1)
 	})
 }
 

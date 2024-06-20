@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
+	"github.com/suessflorian/pedlar/sales/pkg/keys"
 	"github.com/suessflorian/pedlar/sales/pkg/model/sale"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -70,10 +71,10 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateSale(ctx context.Context, input model.NewSale) (*sale.ExternalSale, error)
+	CreateSale(ctx context.Context, input model.NewSale) (*sale.Sale, error)
 }
 type QueryResolver interface {
-	Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.ExternalSale, error)
+	Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.Sale, error)
 }
 
 type executableSchema struct {
@@ -397,9 +398,9 @@ func (ec *executionContext) _Mutation_createSale(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*sale.ExternalSale)
+	res := resTmp.(*sale.Sale)
 	fc.Result = res
-	return ec.marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalSale(ctx, field.Selections, res)
+	return ec.marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐSale(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createSale(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -458,9 +459,9 @@ func (ec *executionContext) _Query_sales(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*sale.ExternalSale)
+	res := resTmp.([]*sale.Sale)
 	fc.Result = res
-	return ec.marshalNSale2ᚕᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalSaleᚄ(ctx, field.Selections, res)
+	return ec.marshalNSale2ᚕᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐSaleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_sales(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -622,7 +623,7 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Sale_id(ctx context.Context, field graphql.CollectedField, obj *sale.ExternalSale) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sale_id(ctx context.Context, field graphql.CollectedField, obj *sale.Sale) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Sale_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -648,9 +649,9 @@ func (ec *executionContext) _Sale_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*keys.OpaqueID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Sale_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -666,7 +667,7 @@ func (ec *executionContext) fieldContext_Sale_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _Sale_line_items(ctx context.Context, field graphql.CollectedField, obj *sale.ExternalSale) (ret graphql.Marshaler) {
+func (ec *executionContext) _Sale_line_items(ctx context.Context, field graphql.CollectedField, obj *sale.Sale) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Sale_line_items(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -692,9 +693,9 @@ func (ec *executionContext) _Sale_line_items(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*sale.ExternalLineItem)
+	res := resTmp.([]sale.LineItem)
 	fc.Result = res
-	return ec.marshalNSaleLineItem2ᚕᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalLineItemᚄ(ctx, field.Selections, res)
+	return ec.marshalNSaleLineItem2ᚕgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐLineItemᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Sale_line_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -720,7 +721,7 @@ func (ec *executionContext) fieldContext_Sale_line_items(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _SaleLineItem_id(ctx context.Context, field graphql.CollectedField, obj *sale.ExternalLineItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _SaleLineItem_id(ctx context.Context, field graphql.CollectedField, obj *sale.LineItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SaleLineItem_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -746,9 +747,9 @@ func (ec *executionContext) _SaleLineItem_id(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*keys.OpaqueID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SaleLineItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -764,7 +765,7 @@ func (ec *executionContext) fieldContext_SaleLineItem_id(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _SaleLineItem_productID(ctx context.Context, field graphql.CollectedField, obj *sale.ExternalLineItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _SaleLineItem_productID(ctx context.Context, field graphql.CollectedField, obj *sale.LineItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SaleLineItem_productID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -790,9 +791,9 @@ func (ec *executionContext) _SaleLineItem_productID(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*keys.OpaqueID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SaleLineItem_productID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -808,7 +809,7 @@ func (ec *executionContext) fieldContext_SaleLineItem_productID(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _SaleLineItem_quantity(ctx context.Context, field graphql.CollectedField, obj *sale.ExternalLineItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _SaleLineItem_quantity(ctx context.Context, field graphql.CollectedField, obj *sale.LineItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SaleLineItem_quantity(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -852,7 +853,7 @@ func (ec *executionContext) fieldContext_SaleLineItem_quantity(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _SaleLineItem_unit_price(ctx context.Context, field graphql.CollectedField, obj *sale.ExternalLineItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _SaleLineItem_unit_price(ctx context.Context, field graphql.CollectedField, obj *sale.LineItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_SaleLineItem_unit_price(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2712,7 +2713,7 @@ func (ec *executionContext) unmarshalInputNewSaleLineItemSale(ctx context.Contex
 		switch k {
 		case "productID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productID"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2753,7 +2754,7 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 		switch k {
 		case "cursor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2902,7 +2903,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var saleImplementors = []string{"Sale"}
 
-func (ec *executionContext) _Sale(ctx context.Context, sel ast.SelectionSet, obj *sale.ExternalSale) graphql.Marshaler {
+func (ec *executionContext) _Sale(ctx context.Context, sel ast.SelectionSet, obj *sale.Sale) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, saleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2946,7 +2947,7 @@ func (ec *executionContext) _Sale(ctx context.Context, sel ast.SelectionSet, obj
 
 var saleLineItemImplementors = []string{"SaleLineItem"}
 
-func (ec *executionContext) _SaleLineItem(ctx context.Context, sel ast.SelectionSet, obj *sale.ExternalLineItem) graphql.Marshaler {
+func (ec *executionContext) _SaleLineItem(ctx context.Context, sel ast.SelectionSet, obj *sale.LineItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, saleLineItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3339,19 +3340,30 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx context.Context, v interface{}) (keys.OpaqueID, error) {
+	var res keys.OpaqueID
+	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
+func (ec *executionContext) marshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx context.Context, sel ast.SelectionSet, v keys.OpaqueID) graphql.Marshaler {
+	return graphql.WrapContextMarshaler(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNID2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx context.Context, v interface{}) (*keys.OpaqueID, error) {
+	var res = new(keys.OpaqueID)
+	err := res.UnmarshalGQLContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNID2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx context.Context, sel ast.SelectionSet, v *keys.OpaqueID) graphql.Marshaler {
+	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
+		return graphql.Null
 	}
-	return res
+	return graphql.WrapContextMarshaler(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -3396,11 +3408,11 @@ func (ec *executionContext) unmarshalNNewSaleLineItemSale2ᚖgithubᚗcomᚋsues
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSale2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalSale(ctx context.Context, sel ast.SelectionSet, v sale.ExternalSale) graphql.Marshaler {
+func (ec *executionContext) marshalNSale2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐSale(ctx context.Context, sel ast.SelectionSet, v sale.Sale) graphql.Marshaler {
 	return ec._Sale(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSale2ᚕᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalSaleᚄ(ctx context.Context, sel ast.SelectionSet, v []*sale.ExternalSale) graphql.Marshaler {
+func (ec *executionContext) marshalNSale2ᚕᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐSaleᚄ(ctx context.Context, sel ast.SelectionSet, v []*sale.Sale) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3424,7 +3436,7 @@ func (ec *executionContext) marshalNSale2ᚕᚖgithubᚗcomᚋsuessflorianᚋped
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalSale(ctx, sel, v[i])
+			ret[i] = ec.marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐSale(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3444,7 +3456,7 @@ func (ec *executionContext) marshalNSale2ᚕᚖgithubᚗcomᚋsuessflorianᚋped
 	return ret
 }
 
-func (ec *executionContext) marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalSale(ctx context.Context, sel ast.SelectionSet, v *sale.ExternalSale) graphql.Marshaler {
+func (ec *executionContext) marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐSale(ctx context.Context, sel ast.SelectionSet, v *sale.Sale) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3454,7 +3466,11 @@ func (ec *executionContext) marshalNSale2ᚖgithubᚗcomᚋsuessflorianᚋpedlar
 	return ec._Sale(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNSaleLineItem2ᚕᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalLineItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*sale.ExternalLineItem) graphql.Marshaler {
+func (ec *executionContext) marshalNSaleLineItem2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐLineItem(ctx context.Context, sel ast.SelectionSet, v sale.LineItem) graphql.Marshaler {
+	return ec._SaleLineItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSaleLineItem2ᚕgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐLineItemᚄ(ctx context.Context, sel ast.SelectionSet, v []sale.LineItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3478,7 +3494,7 @@ func (ec *executionContext) marshalNSaleLineItem2ᚕᚖgithubᚗcomᚋsuessflori
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNSaleLineItem2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalLineItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNSaleLineItem2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐLineItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3496,16 +3512,6 @@ func (ec *executionContext) marshalNSaleLineItem2ᚕᚖgithubᚗcomᚋsuessflori
 	}
 
 	return ret
-}
-
-func (ec *executionContext) marshalNSaleLineItem2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋsaleᚐExternalLineItem(ctx context.Context, sel ast.SelectionSet, v *sale.ExternalLineItem) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SaleLineItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

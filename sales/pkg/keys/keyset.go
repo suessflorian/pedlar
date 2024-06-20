@@ -79,8 +79,9 @@ func (k *Holder) sync() {
 	}
 }
 
-// ExternalID takes in a internal serial id of an object and returns the current external facing ID.
-func (k *Holder) ExternalID(ctx context.Context, object string, internalID int) (string, error) {
+// Encode takes in a internal serial id of an object and returns the current external facing ID.
+// Implements the EncoderDecoder interface.
+func (k *Holder) Encode(ctx context.Context, internalID int) (string, error) {
 	go k.sync()
 
 	key, err := k.holding(ctx)
@@ -88,16 +89,15 @@ func (k *Holder) ExternalID(ctx context.Context, object string, internalID int) 
 		return "", fmt.Errorf("could not retrieve latest keyset: %w", err)
 	}
 
-	encrypted, err := k.encrypt(object, strconv.Itoa(internalID))
-	if err != nil || len(encrypted) != 2 {
-		return "", fmt.Errorf("failed to encrypt object %q and internal id %q: %w", object, internalID, err)
+	encrypted, err := k.encrypt(strconv.Itoa(internalID))
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt object with internal id %d: %w", internalID, err)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"kid":             key.ID,
-		"internal_object": encrypted[0],
-		"internal_id":     encrypted[1],
-		"exp":             key.Expiry.Unix(),
+		"kid":         key.ID,
+		"internal_id": encrypted,
+		"exp":         key.Expiry.Unix(),
 	})
 
 	block, _ := pem.Decode([]byte(key.SigningKey))
@@ -118,8 +118,8 @@ func (k *Holder) ExternalID(ctx context.Context, object string, internalID int) 
 	return id, nil
 }
 
-// InternalID takes in a externalID and returns the internal facing ID.
-func (k *Holder) InternalID(ctx context.Context, externalID string) (int, error) {
+// Decode takes in a externalID and returns the internal facing ID.
+func (k *Holder) Decode(ctx context.Context, externalID string) (int, error) {
 	if k.revoke {
 		return -1, ErrHolderRevoked
 	}

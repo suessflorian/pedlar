@@ -11,73 +11,62 @@ import (
 
 // encrypt symmetrically encrypts target strings using the current keyset's encryption key.
 // We adopt AES-GCM encryption scheme.
-func (k *Holder) encrypt(targets ...string) ([]string, error) {
+func (k *Holder) encrypt(target string) (string, error) {
 	key, err := base64.StdEncoding.DecodeString(k.curr.EncryptionKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to base64 decode encryption key: %w", err)
+		return "", fmt.Errorf("failed to base64 decode encryption key: %w", err)
 	}
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("could not create cipher block: %w", err)
+		return "", fmt.Errorf("could not create cipher block: %w", err)
 	}
 
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, fmt.Errorf("could not create GCM mode: %w", err)
+		return "", fmt.Errorf("could not create GCM mode: %w", err)
 	}
 
 	nonce := make([]byte, aesGCM.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, fmt.Errorf("could not generate nonce: %w", err)
+		return "", fmt.Errorf("could not generate nonce: %w", err)
 	}
 
-	var encrypted = make([]string, 0, len(targets))
-	for _, target := range targets {
-		ciphertext := aesGCM.Seal(nonce, nonce, []byte(target), nil)
-		encrypted = append(encrypted, base64.StdEncoding.EncodeToString(ciphertext))
-	}
-
-	return encrypted, nil
+	return base64.StdEncoding.EncodeToString(aesGCM.Seal(nonce, nonce, []byte(target), nil)), nil
 }
 
 // decrypt decrypts target strings using the current keyset's encryption key.
 // We adopt AES-GCM encryption scheme. Assumes nonce is transmitted.
-func (k *Holder) decrypt(targets ...string) ([]string, error) {
+func (k *Holder) decrypt(target string) (string, error) {
 	key, err := base64.StdEncoding.DecodeString(k.curr.EncryptionKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to base64 decode encryption key: %w", err)
+		return "", fmt.Errorf("failed to base64 decode encryption key: %w", err)
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("could not create cipher block: %w", err)
+		return "", fmt.Errorf("could not create cipher block: %w", err)
 	}
 
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, fmt.Errorf("could not create GCM mode: %w", err)
+		return "", fmt.Errorf("could not create GCM mode: %w", err)
 	}
 
-	var decrypted = make([]string, 0, len(targets))
-	for _, target := range targets {
-		ciphertext, err := base64.StdEncoding.DecodeString(target)
-		if err != nil {
-			return nil, fmt.Errorf("could not decode base64 string: %w", err)
-		}
-
-		nonceSize := aesGCM.NonceSize()
-		if len(ciphertext) < nonceSize {
-			return nil, fmt.Errorf("ciphertext too short")
-		}
-
-		nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
-		plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
-		if err != nil {
-			return nil, fmt.Errorf("could not decrypt data: %w", err)
-		}
-
-		decrypted = append(decrypted, string(plaintext))
+	ciphertext, err := base64.StdEncoding.DecodeString(target)
+	if err != nil {
+		return "", fmt.Errorf("could not decode base64 string: %w", err)
 	}
 
-	return decrypted, nil
+	nonceSize := aesGCM.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", fmt.Errorf("could not decrypt data: %w", err)
+	}
+
+	return string(plaintext), nil
 }

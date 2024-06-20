@@ -10,31 +10,37 @@ import (
 
 	"github.com/suessflorian/pedlar/sales/internal/graph"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
+	"github.com/suessflorian/pedlar/sales/pkg/keys"
 	"github.com/suessflorian/pedlar/sales/pkg/model/sale"
 )
 
 // CreateSale is the resolver for the createSale field.
-func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) (*sale.ExternalSale, error) {
+func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) (*sale.Sale, error) {
 	panic(fmt.Errorf("not implemented: CreateSale - createSale"))
 }
 
 // Sales is the resolver for the sales field.
-func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.ExternalSale, error) {
-	var sales []*sale.ExternalSale
-
-	sale := &sale.Sale{
-		ID: 0,
-		LineItems: []sale.LineItem{
-			{
-				ID:        0,
-				ProductID: 0,
-				Quantity:  12,
-				UnitPrice: 6900,
+func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.Sale, error) {
+	id := keys.OpaqueID{ID: 1}
+	return []*sale.Sale{
+		{
+			ID:        id.WithCodec(r.Keys),
+			LineItems: []sale.LineItem{
+				// {
+				// 	ID:        id.WithCodec(r.Keys),
+				// 	ProductID: id.WithCodec(r.Keys),
+				// 	Quantity:  100,
+				// 	UnitPrice: 23,
+				// },
+				// {
+				// 	ID:        id.WithCodec(r.Keys),
+				// 	ProductID: id.WithCodec(r.Keys),
+				// 	Quantity:  100,
+				// 	UnitPrice: 23,
+				// },
 			},
 		},
-	}
-	sales = append(sales, sale.External(ctx, r.Keys.ExternalID))
-	return sales, nil
+	}, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

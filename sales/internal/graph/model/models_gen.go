@@ -2,6 +2,10 @@
 
 package model
 
+import (
+	"github.com/suessflorian/pedlar/sales/pkg/keys"
+)
+
 type Mutation struct {
 }
 
@@ -10,14 +14,14 @@ type NewSale struct {
 }
 
 type NewSaleLineItemSale struct {
-	ProductID string `json:"productID"`
-	Quantity  int    `json:"quantity"`
-	UnitPrice int    `json:"unit_price"`
+	ProductID keys.OpaqueID `json:"productID"`
+	Quantity  int           `json:"quantity"`
+	UnitPrice int           `json:"unit_price"`
 }
 
 type PaginationInput struct {
-	Cursor string `json:"cursor"`
-	Limit  int    `json:"limit"`
+	Cursor keys.OpaqueID `json:"cursor"`
+	Limit  int           `json:"limit"`
 }
 
 type Query struct {
