@@ -119,6 +119,7 @@ func (k *Holder) Encode(ctx context.Context, internalID int) (string, error) {
 }
 
 // Decode takes in a externalID and returns the internal facing ID.
+// TODO
 func (k *Holder) Decode(ctx context.Context, externalID string) (int, error) {
 	if k.revoke {
 		return -1, ErrHolderRevoked
