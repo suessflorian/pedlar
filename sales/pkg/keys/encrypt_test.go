@@ -1,7 +1,9 @@
 package keys
 
 import (
+	"math/rand"
 	"slices"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,34 +13,13 @@ import (
 func TestEncryptDecrypt(t *testing.T) {
 	t.Parallel()
 
-	t.Run("symmetric", func(t *testing.T) {
-		t.Parallel()
-
-		key, err := generateAESKey()
-		require.NoError(t, err)
-
-		curr := KeySet{EncryptionKey: key}
-		holder := Holder{curr: curr}
-
-		var trials = []string{"hello world", "🔥", "this encryption/decryption stuff such an overkill"}
-		for _, expected := range trials {
-			cifers, err := holder.encrypt(expected)
-			require.NoError(t, err)
-
-			actual, err := holder.decrypt(string(cifers))
-			require.NoError(t, err)
-
-			assert.Equal(t, expected, actual)
-		}
-	})
-
 	t.Run("encrypt to many to decrypt to one", func(t *testing.T) {
 		t.Parallel()
 
 		key, err := generateAESKey()
 		require.NoError(t, err)
 
-		curr := KeySet{EncryptionKey: key}
+		curr := &KeySet{EncryptionKey: key}
 		holder := Holder{curr: curr}
 
 		expected := "hello world"
@@ -74,7 +55,7 @@ func FuzzEncryptDecrypt(f *testing.F) {
 		key, err := generateAESKey()
 		require.NoError(t, err)
 
-		curr := KeySet{EncryptionKey: key}
+		curr := &KeySet{EncryptionKey: key}
 		holder := Holder{curr: curr}
 
 		cifers, err := holder.encrypt(expected)
@@ -93,14 +74,43 @@ func BenchmarkEncrypt(b *testing.B) {
 		b.Fatalf("failed to generate AES key: %v", err)
 	}
 
-	curr := KeySet{EncryptionKey: key}
+	curr := &KeySet{EncryptionKey: key}
 	holder := Holder{curr: curr}
 
-	message := "hello world"
+	trials := make([]string, b.N)
+	for i := range trials {
+		trials[i] = strconv.Itoa(rand.Int())
+	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, err := holder.encrypt(message)
+	for _, trial := range trials {
+		_, err := holder.encrypt(trial)
+		if err != nil {
+			b.Fatalf("failed to encrypt message: %v", err)
+		}
+	}
+}
+
+func BenchmarkDecrypt(b *testing.B) {
+	key, err := generateAESKey()
+	if err != nil {
+		b.Fatalf("failed to generate AES key: %v", err)
+	}
+
+	curr := &KeySet{EncryptionKey: key}
+	holder := Holder{curr: curr}
+
+	trials := make([]string, b.N)
+	for i := range trials {
+		trials[i], err = holder.encrypt(strconv.Itoa(rand.Int()))
+		if err != nil {
+			b.Fatalf("failed to create encrypted trial value: %v", err)
+		}
+	}
+
+	b.ResetTimer()
+	for _, trial := range trials {
+		_, err := holder.decrypt(trial)
 		if err != nil {
 			b.Fatalf("failed to encrypt message: %v", err)
 		}

@@ -2,9 +2,6 @@ package keys
 
 import (
 	"context"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"strconv"
@@ -64,22 +61,11 @@ func (k *Holder) Decode(ctx context.Context, externalID string) (int, error) {
 			return nil, fmt.Errorf("could not retrieve latest keyset: %w", err)
 		}
 
-		block, _ := pem.Decode([]byte(key.PublicKey))
-		if block == nil {
-			return nil, errors.New("could not decode public key")
-		}
-
-		publicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
+		publicKey, err := key.publicKey()
 		if err != nil {
-			return nil, fmt.Errorf("could not parse public key: %w", err)
+			return nil, fmt.Errorf("could not get public key from keyset: %w", err)
 		}
-
-		rsaPublicKey, ok := publicKey.(*rsa.PublicKey)
-		if !ok {
-			return nil, errors.New("not an RSA public key")
-		}
-
-		return rsaPublicKey, nil
+		return publicKey, nil
 	})
 	if err != nil {
 		return -1, fmt.Errorf("could not parse token: %w", err)

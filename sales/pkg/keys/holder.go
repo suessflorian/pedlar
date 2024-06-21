@@ -22,17 +22,17 @@ var (
 )
 
 type store interface {
-	GetActiveKeySet(context.Context) (KeySet, error)
+	GetActiveKeySet(context.Context) (*KeySet, error)
 	RevokeKeySet(context.Context, uuid.UUID) error
-	KeySets(context.Context, ...uuid.UUID) ([]KeySet, error)
-	RegisterKeySet(context.Context, string, string, string) (KeySet, error)
+	KeySets(context.Context, ...uuid.UUID) ([]*KeySet, error)
+	RegisterKeySet(context.Context, string, string, string) (*KeySet, error)
 }
 
 type Holder struct {
 	store store
 
-	curr  KeySet               // WARNING: concurrent write/read
-	chain map[uuid.UUID]KeySet // WARNING: concurrent write/read
+	curr  *KeySet              // WARNING: concurrent write/read
+	chain map[uuid.UUID]*KeySet // WARNING: concurrent write/read
 
 	poll   time.Time
 	revoke bool
@@ -41,7 +41,7 @@ type Holder struct {
 func NewHolder(ctx context.Context, store store) (*Holder, error) {
 	holder := &Holder{
 		store: store,
-		chain: make(map[uuid.UUID]KeySet, 0),
+		chain: make(map[uuid.UUID]*KeySet, 0),
 		poll:  time.Now().Add(5 * time.Second),
 	}
 
@@ -61,7 +61,7 @@ func (k *Holder) sync() {
 }
 
 // holding checks the curr key is active, if so returns it, if not, gets a new active key.
-func (k *Holder) holding(ctx context.Context) (KeySet, error) {
+func (k *Holder) holding(ctx context.Context) (*KeySet, error) {
 	if k.curr.active() {
 		return k.curr, nil
 	}
@@ -83,7 +83,7 @@ func (k *Holder) update(ctx context.Context) error {
 		return fmt.Errorf("failed to check for key updates: %w", err)
 	}
 
-	var updated = make(map[uuid.UUID]KeySet, len(keys))
+	var updated = make(map[uuid.UUID]*KeySet, len(keys))
 	for _, key := range keys {
 		updated[key.ID] = key
 	}
