@@ -2,16 +2,12 @@ package keys
 
 import (
 	"context"
-	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"log/slog"
 	"maps"
-	"strconv"
 	"time"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
 
@@ -27,7 +23,7 @@ type KeySet struct {
 }
 
 func (k KeySet) Active() bool {
-	return k.Revoked || time.Now().After(k.Expiry)
+	return !k.Revoked && time.Now().Before(k.Expiry)
 }
 
 var (
@@ -53,23 +49,23 @@ type Holder struct {
 	curr  KeySet               // WARNING: concurrent write/read
 	chain map[uuid.UUID]KeySet // WARNING: concurrent write/read
 
-	expiry time.Time
+	poll   time.Time
 	revoke bool
 }
 
 func NewHolder(ctx context.Context, store store) (*Holder, error) {
 	holder := &Holder{
-		store:  store,
-		chain:  make(map[uuid.UUID]KeySet, 0),
-		expiry: time.Now().Add(5 * time.Second),
+		store: store,
+		chain: make(map[uuid.UUID]KeySet, 0),
+		poll:  time.Now().Add(5 * time.Second),
 	}
 
 	return holder, holder.setCurrent(ctx)
 }
 
 func (k *Holder) sync() {
-	if time.Now().After(k.expiry) {
-		k.expiry = k.expiry.Add(5 * time.Second)
+	if time.Now().After(k.poll) {
+		k.poll = k.poll.Add(5 * time.Second)
 		err := k.update(context.Background())
 		if err != nil {
 			slog.Error(fmt.Sprintf("failed to update chain, revoking holder: %v", err.Error()))
@@ -77,56 +73,6 @@ func (k *Holder) sync() {
 			return
 		}
 	}
-}
-
-// Encode takes in a internal serial id of an object and returns the current external facing ID.
-// Implements the EncoderDecoder interface.
-func (k *Holder) Encode(ctx context.Context, internalID int) (string, error) {
-	go k.sync()
-
-	key, err := k.holding(ctx)
-	if err != nil {
-		return "", fmt.Errorf("could not retrieve latest keyset: %w", err)
-	}
-
-	encrypted, err := k.encrypt(strconv.Itoa(internalID))
-	if err != nil {
-		return "", fmt.Errorf("failed to encrypt object with internal id %d: %w", internalID, err)
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"kid":         key.ID,
-		"internal_id": encrypted,
-		"exp":         key.Expiry.Unix(),
-	})
-
-	block, _ := pem.Decode([]byte(key.SigningKey))
-	if block == nil {
-		return "", errors.New("could not decode signing key")
-	}
-
-	signingKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return "", fmt.Errorf("could not parse signing key: %w", err)
-	}
-
-	id, err := token.SignedString(signingKey)
-	if err != nil {
-		return "", fmt.Errorf("could not sign token: %w", err)
-	}
-
-	return id, nil
-}
-
-// Decode takes in a externalID and returns the internal facing ID.
-// TODO
-func (k *Holder) Decode(ctx context.Context, externalID string) (int, error) {
-	if k.revoke {
-		return -1, ErrHolderRevoked
-	}
-	go k.sync()
-
-	return -1, nil
 }
 
 // holding checks the curr key is active, if so returns it, if not, gets a new active key.

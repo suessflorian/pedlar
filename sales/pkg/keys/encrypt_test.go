@@ -69,6 +69,24 @@ func TestEncryptDecrypt(t *testing.T) {
 	})
 }
 
+func FuzzEncryptDecrypt(f *testing.F) {
+	f.Fuzz(func(t *testing.T, expected string) {
+		key, err := generateAESKey()
+		require.NoError(t, err)
+
+		curr := KeySet{EncryptionKey: key}
+		holder := Holder{curr: curr}
+
+		cifers, err := holder.encrypt(expected)
+		require.NoError(t, err)
+
+		actual, err := holder.decrypt(string(cifers))
+		require.NoError(t, err)
+
+		assert.Equal(t, expected, actual)
+	})
+}
+
 func BenchmarkEncrypt(b *testing.B) {
 	key, err := generateAESKey()
 	if err != nil {
