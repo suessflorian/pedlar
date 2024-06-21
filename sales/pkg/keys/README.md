@@ -1,10 +1,10 @@
 # The Interesting Face of Identifiers
 Using serial/incremental IDs can offer some benefits:
 
-1.	Simplicity/Readability: Serial IDs are straightforward to implement and understand. They increment sequentially, making them easy to generate and manage.
-2.	Performance: In databases, serial IDs can improve indexing and query performance. Indexes on sequential IDs tend to be more efficient due to their ordered nature.
-3.	Efficiency: Generating a new serial ID is computationally inexpensive compared to other methods like UUIDs.
-4.	Storage: Serial IDs require less storage space compared to UUIDs, which can be beneficial in larger-scale applications.
+1. Simplicity/Readability: Serial IDs are straightforward to implement and understand. They increment sequentially, making them easy to generate and manage.
+2. Performance: In databases, serial IDs can improve indexing and query performance. Indexes on sequential IDs tend to be more efficient due to their ordered nature.
+3. Efficiency: Generating a new serial ID is computationally inexpensive compared to other methods like UUIDs.
+4. Storage: Serial IDs require less storage space compared to UUIDs, which can be beneficial in larger-scale applications.
 
 However, there are known drawbacks to using serial IDs, such as predictability and the risk of enumeration attacks. Where security and obfuscation are considered, other ID generation methods like UUIDs are typically reached for and conversations around this topic typically finish here. But even in this case, recurring use of the same ID for the same entities encourages side-channel attacks; traffic analysis or some form of fingerprinting that can link interaction to users.
 

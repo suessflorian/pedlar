@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"io"
+	"reflect"
 )
 
 type EncoderDecoder interface {
@@ -15,7 +16,7 @@ type EncoderDecoder interface {
 // OpaqueID is the type that is used as an integration tool to any application that wants to
 // use the Holder service. It satisfies marshaller interfaces for API.
 type OpaqueID struct {
-	ID       int
+	ID       int `json:"-"`
 	external string
 
 	codec EncoderDecoder
@@ -30,6 +31,44 @@ func (k *OpaqueID) WithCodec(c EncoderDecoder) *OpaqueID {
 	}
 }
 
+// SetCodec recursively walks any given instance type tree and inplace sets the provided
+// codec for any exported OpaqueID fields.
+func SetCodec[T any](v *T, codec EncoderDecoder) {
+	walkAndSetCodec(reflect.ValueOf(v).Elem(), codec)
+}
+
+func walkAndSetCodec(val reflect.Value, codec EncoderDecoder) {
+	switch val.Kind() {
+	case reflect.Struct:
+		for i := 0; i < val.NumField(); i++ {
+			field := val.Field(i)
+			if field.CanSet() {
+				walkAndSetCodec(field, codec)
+			}
+		}
+	case reflect.Ptr:
+		if !val.IsNil() {
+			elem := val.Elem()
+			if elem.Type() == reflect.TypeOf(OpaqueID{}) {
+				id := elem.Addr().Interface().(*OpaqueID)
+				*id = *id.WithCodec(codec)
+			} else {
+				walkAndSetCodec(elem, codec)
+			}
+		}
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < val.Len(); i++ {
+			walkAndSetCodec(val.Index(i), codec)
+		}
+	case reflect.Map:
+		for _, key := range val.MapKeys() {
+			walkAndSetCodec(val.MapIndex(key), codec)
+		}
+	}
+}
+
+// Decode decodes the external id to the internal id a codec that is attached.
+// If no codec is provided an error is thrown.
 func (k *OpaqueID) Decode(ctx context.Context) (int, error) {
 	if k.codec == nil {
 		return -1, fmt.Errorf("no codec set for HiddenID")
@@ -40,6 +79,29 @@ func (k *OpaqueID) Decode(ctx context.Context) (int, error) {
 	}
 
 	return k.codec.Decode(ctx, k.external)
+}
+
+func (k *OpaqueID) UnmarshalJSONContext(ctx context.Context, v interface{}) error {
+	s, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("`ID` must be a string")
+	}
+	k.external = s
+	return nil
+}
+
+func (k OpaqueID) MarshalJSONContext(ctx context.Context, w io.Writer) error {
+	if k.codec == nil {
+		return fmt.Errorf("no codec set for OpaqueID")
+	}
+
+	encoded, err := k.codec.Encode(ctx, k.ID)
+	if err != nil {
+		return fmt.Errorf("failed to encode OpaqueID: %w", err)
+	}
+
+	_, err = w.Write([]byte(`"` + encoded + `"`))
+	return err
 }
 
 func (k *OpaqueID) UnmarshalGQLContext(ctx context.Context, v interface{}) error {

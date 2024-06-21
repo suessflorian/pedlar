@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -15,6 +16,122 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestSetCodec(t *testing.T) {
+	var checkCodec = func(t *testing.T, oid *OpaqueID, expected EncoderDecoder) {
+		t.Helper()
+		if oid == nil {
+			t.Fatalf("OpaqueID is nil")
+		}
+		if !reflect.DeepEqual(oid.codec, expected) {
+			t.Fatalf("Expected codec %v, but got %v", expected, oid.codec)
+		}
+	}
+
+	var codec mockCodec
+
+	t.Run("simple", func(t *testing.T) {
+		type example struct {
+			ID *OpaqueID
+		}
+		ex := &example{ID: &OpaqueID{ID: 1}}
+		SetCodec(ex, &codec)
+
+		checkCodec(t, ex.ID, &codec)
+	})
+
+	t.Run("skips unexported simple", func(t *testing.T) {
+		type example struct {
+			id *OpaqueID
+		}
+		ex := &example{id: &OpaqueID{ID: 1}}
+		SetCodec(ex, &codec)
+
+		assert.Nil(t, ex.id.codec)
+	})
+
+	t.Run("nested", func(t *testing.T) {
+		type example struct {
+			ID   *OpaqueID
+			Nest struct {
+				ID *OpaqueID
+			}
+		}
+		ex := &example{
+			ID: &OpaqueID{ID: 1},
+			Nest: struct {
+				ID *OpaqueID
+			}{ID: &OpaqueID{ID: 2}},
+		}
+
+		SetCodec(ex, &codec)
+
+		checkCodec(t, ex.ID, &codec)
+		checkCodec(t, ex.Nest.ID, &codec)
+	})
+
+	t.Run("nil", func(t *testing.T) {
+		type example struct {
+			ID *OpaqueID
+		}
+		ex := &example{ID: nil}
+
+		SetCodec(ex, &codec)
+
+		assert.Nilf(t, ex.ID, "expected id to remain nil")
+	})
+
+	t.Run("no opaque id's present", func(t *testing.T) {
+		type example struct {
+			Val int
+		}
+		ex := &example{Val: 42}
+
+		SetCodec(ex, &codec)
+
+		assert.Equalf(t, 42, ex.Val, "expected val to remain 42")
+	})
+
+	t.Run("multiple", func(t *testing.T) {
+		type example struct {
+			ID        *OpaqueID
+			ProductID *OpaqueID
+		}
+		ex := &example{
+			ID:        &OpaqueID{ID: 1},
+			ProductID: &OpaqueID{ID: 2},
+		}
+		SetCodec(ex, &codec)
+
+		checkCodec(t, ex.ID, &codec)
+		checkCodec(t, ex.ProductID, &codec)
+	})
+
+	t.Run("multiple nested and unexported", func(t *testing.T) {
+		type nestnest struct {
+			id *OpaqueID
+		}
+		type nest struct {
+			NestNest nestnest
+		}
+		type example struct {
+			Sub nest
+			ID  *OpaqueID
+		}
+		ex := &example{
+			ID: &OpaqueID{ID: 3},
+			Sub: nest{
+				NestNest: nestnest{
+					id: &OpaqueID{ID: 3},
+				},
+			},
+		}
+		SetCodec(ex, &codec)
+
+		checkCodec(t, ex.ID, &codec)
+		assert.Nil(t, ex.Sub.NestNest.id.codec)
+	})
+}
 
 func TestPgxIntegration(t *testing.T) {
 	t.Parallel()
