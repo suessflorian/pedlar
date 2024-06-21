@@ -28,13 +28,26 @@ type store interface {
 	RegisterKeySet(context.Context, string, string, string) (*KeySet, error)
 }
 
+// Holder is the horizontally scalable service that handles the encoding/decoding of `OpaqueID`'s. It shares
+// state with cooperating `Holders` via "central store". This "central store" can be a horizontally sharded setup
+// where the details of how to follow shard/tenant store destination is done via propagated info via context.
+// Multiple active keysets can be active simultaneously in this group.
 type Holder struct {
 	store store
 
-	curr  *KeySet              // WARNING: concurrent write/read
+	// curr represents the current keyset in use, this is currently used for encoding/decoding incoming ID's.
+	curr *KeySet // WARNING: concurrent write/read
+	// chain acts as a local pull-through cache of any other key that has been seen.
 	chain map[uuid.UUID]*KeySet // WARNING: concurrent write/read
 
-	poll   time.Time
+	// poll is the timestamp that the holder will use as a condition as to whether it should sync all seen
+	// "active" keys with the central key store to check for changed revoke status's of the chain cache.
+	// The `sync` is typically done a separate goroutine.
+	poll time.Time
+
+	// revoke acts as a sync communication between the holder and the process that syncs the "active" keys
+	// in the chain. If the process gets interrupted for whatever reason, it trips this breaker that forces
+	// the holder to crash.
 	revoke bool
 }
 
@@ -129,11 +142,10 @@ func (k *Holder) setCurrent(ctx context.Context) error {
 			return fmt.Errorf("failed to register new keyset: %w", err)
 		}
 		k.curr = newKey
-		return nil
 	} else if err != nil {
 		return fmt.Errorf("could not get new active keyset: %w", err)
 	} else {
 		k.curr = currentActiveKey
-		return nil
 	}
+	return k.curr.heat()
 }

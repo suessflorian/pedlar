@@ -25,6 +25,8 @@ type KeySet struct {
 	cachedPublicKey         *rsa.PublicKey
 }
 
+// heat caches the parsed public and private keys for improved signing and verifying
+// of external ID's. Benchmarks demonstrate about a 10% speed increase for encoding/decoding.
 func (k *KeySet) heat() error {
 	var err error
 	k.cachedPrivateSigningKey, err = k.privateSigningKey()

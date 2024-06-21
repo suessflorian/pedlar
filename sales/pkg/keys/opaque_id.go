@@ -2,6 +2,7 @@ package keys
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"io"
 )
@@ -11,6 +12,8 @@ type EncoderDecoder interface {
 	Decode(ctx context.Context, id string) (int, error)
 }
 
+// OpaqueID is the type that is used as an integration tool to any application that wants to
+// use the Holder service. It satisfies marshaller interfaces for API.
 type OpaqueID struct {
 	ID       int
 	external string
@@ -60,4 +63,22 @@ func (k OpaqueID) MarshalGQLContext(ctx context.Context, w io.Writer) error {
 
 	_, err = w.Write([]byte(`"` + encoded + `"`))
 	return err
+}
+
+func (oid OpaqueID) Value() (driver.Value, error) {
+	return oid.ID, nil
+}
+
+func (oid *OpaqueID) Scan(value interface{}) error {
+	switch v := value.(type) {
+	case int64:
+		oid.ID = int(v)
+	case int:
+		oid.ID = v
+	case int32:
+		oid.ID = int(v)
+	default:
+		return fmt.Errorf("cannot scan type %T into OpaqueID", value)
+	}
+	return nil
 }
