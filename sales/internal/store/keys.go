@@ -18,7 +18,7 @@ func (k *Keys) GetActiveKeySet(ctx context.Context) (keys.KeySet, error) {
 	var key keys.KeySet
 	row := k.Conn.QueryRow(ctx, "SELECT kid, encryption_key, signing_key, public_key, expiry FROM keys WHERE revoked = false AND expiry > NOW() ORDER BY expiry DESC LIMIT 1")
 
-	err := row.Scan(&key.ID, &key.EncryptionKey, &key.SigningKey, &key.PublicKey, &key.Expiry)
+	err := row.Scan(&key.ID, &key.EncryptionKey, &key.PrivateKey, &key.PublicKey, &key.Expiry)
 	if err == pgx.ErrNoRows {
 		return keys.KeySet{}, keys.ErrNoActiveKeySet
 	} else if err != nil {
@@ -68,7 +68,7 @@ func (k *Keys) RegisterKeySet(ctx context.Context, signingKey, publicKey, encryp
 	return keys.KeySet{
 		ID:            id,
 		EncryptionKey: encryptionKey,
-		SigningKey:    signingKey,
+		PrivateKey:    signingKey,
 		PublicKey:     publicKey,
 		Expiry:        expiry,
 		Revoked:       false,

@@ -33,14 +33,9 @@ func (k *Holder) Encode(ctx context.Context, internalID int) (string, error) {
 		"exp":         key.Expiry.Unix(),
 	})
 
-	block, _ := pem.Decode([]byte(key.SigningKey))
-	if block == nil {
-		return "", errors.New("could not decode signing key")
-	}
-
-	signingKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	signingKey, err := key.privateSigningKey()
 	if err != nil {
-		return "", fmt.Errorf("could not parse signing key: %w", err)
+		return "", fmt.Errorf("failed to get signing key from keyset: %w", err)
 	}
 
 	id, err := token.SignedString(signingKey)
@@ -52,6 +47,7 @@ func (k *Holder) Encode(ctx context.Context, internalID int) (string, error) {
 }
 
 // Decode takes an externalID and returns the internal facing ID.
+// Implements the EncoderDecoder interface.
 func (k *Holder) Decode(ctx context.Context, externalID string) (int, error) {
 	if k.revoke {
 		return -1, ErrHolderRevoked

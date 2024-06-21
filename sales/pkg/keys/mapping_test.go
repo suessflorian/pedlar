@@ -25,7 +25,7 @@ func FuzzEncodeDecode(f *testing.F) {
 			curr: KeySet{
 				ID:            uuid.New(),
 				EncryptionKey: encryptionKey,
-				SigningKey:    private,
+				PrivateKey:    private,
 				PublicKey:     public,
 				Expiry:        time.Now().Add(1 * time.Hour),
 				Revoked:       false,
@@ -63,7 +63,7 @@ func BenchmarkEncode(b *testing.B) {
 		curr: KeySet{
 			ID:            uuid.New(),
 			EncryptionKey: encryptionKey,
-			SigningKey:    private,
+			PrivateKey:    private,
 			PublicKey:     public,
 			Expiry:        time.Now().Add(1 * time.Hour),
 			Revoked:       false,
