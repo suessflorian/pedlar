@@ -33,8 +33,8 @@ func (k *OpaqueID) WithCodec(c EncoderDecoder) *OpaqueID {
 
 // SetCodec recursively walks any given instance type tree and inplace sets the provided
 // codec for any exported OpaqueID fields.
-func SetCodec[T any](v *T, codec EncoderDecoder) {
-	walkAndSetCodec(reflect.ValueOf(v).Elem(), codec)
+func SetCodec[T any](v T, codec EncoderDecoder) {
+	walkAndSetCodec(reflect.ValueOf(v), codec)
 }
 
 func walkAndSetCodec(val reflect.Value, codec EncoderDecoder) {
@@ -56,7 +56,7 @@ func walkAndSetCodec(val reflect.Value, codec EncoderDecoder) {
 				walkAndSetCodec(elem, codec)
 			}
 		}
-	case reflect.Slice, reflect.Array:
+	case reflect.Slice:
 		for i := 0; i < val.Len(); i++ {
 			walkAndSetCodec(val.Index(i), codec)
 		}
