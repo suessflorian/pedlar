@@ -35,7 +35,11 @@ func main() {
 
 	resolver := &resolver.Resolver{Keys: holder}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(
+		graph.Config{
+			Resolvers: resolver,
+		},
+	))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

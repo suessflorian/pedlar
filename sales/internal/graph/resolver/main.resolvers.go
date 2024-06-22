@@ -21,10 +21,9 @@ func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) 
 
 // Sales is the resolver for the sales field.
 func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.Sale, error) {
-	id := keys.OpaqueID{ID: 1}
-	return []*sale.Sale{
+	sales := []*sale.Sale{
 		{
-			ID:        id.WithCodec(r.Keys),
+			ID:        &keys.OpaqueID{ID: 1},
 			LineItems: []sale.LineItem{
 				// {
 				// 	ID:        id.WithCodec(r.Keys),
@@ -40,7 +39,10 @@ func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInp
 				// },
 			},
 		},
-	}, nil
+	}
+
+	keys.SetCodec(&sales, r.Keys)
+	return sales, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

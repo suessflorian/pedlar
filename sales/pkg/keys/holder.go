@@ -54,6 +54,7 @@ type Holder struct {
 func NewHolder(ctx context.Context, store store) (*Holder, error) {
 	holder := &Holder{
 		store: store,
+		curr:  &KeySet{},
 		chain: make(map[uuid.UUID]*KeySet, 0),
 		poll:  time.Now().Add(5 * time.Second),
 	}

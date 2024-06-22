@@ -1,17 +1,19 @@
+directive @opaque on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
 type Sale {
-  id: ID!
+  id: ID! @opaque
   line_items: [SaleLineItem!]!
 }
 
 type SaleLineItem {
-  id: ID!
-  productID: ID!
+  id: ID! @opaque
+  productID: ID! @opaque
   quantity: Int!
   unit_price: Int!
 }
 
 input PaginationInput {
-  cursor: ID!
+  cursor: ID! @opaque
   limit: Int!
 }
 
@@ -24,7 +26,7 @@ input NewSale {
 }
 
 input NewSaleLineItemSale {
-  productID: ID!
+  productID: ID! @opaque
   quantity: Int!
   unit_price: Int!
 }

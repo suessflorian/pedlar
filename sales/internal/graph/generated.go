@@ -46,6 +46,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Opaque func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -636,8 +637,28 @@ func (ec *executionContext) _Sale_id(ctx context.Context, field graphql.Collecte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ID, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Opaque == nil {
+				return nil, errors.New("directive opaque is not implemented")
+			}
+			return ec.directives.Opaque(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*keys.OpaqueID); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -734,8 +755,28 @@ func (ec *executionContext) _SaleLineItem_id(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ID, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Opaque == nil {
+				return nil, errors.New("directive opaque is not implemented")
+			}
+			return ec.directives.Opaque(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*keys.OpaqueID); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -778,8 +819,28 @@ func (ec *executionContext) _SaleLineItem_productID(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ProductID, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ProductID, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Opaque == nil {
+				return nil, errors.New("directive opaque is not implemented")
+			}
+			return ec.directives.Opaque(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*keys.OpaqueID); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2713,11 +2774,26 @@ func (ec *executionContext) unmarshalInputNewSaleLineItemSale(ctx context.Contex
 		switch k {
 		case "productID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productID"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
 			}
-			it.ProductID = data
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.Opaque == nil {
+					return nil, errors.New("directive opaque is not implemented")
+				}
+				return ec.directives.Opaque(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(keys.OpaqueID); ok {
+				it.ProductID = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "quantity":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantity"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
@@ -2754,11 +2830,26 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 		switch k {
 		case "cursor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
 			}
-			it.Cursor = data
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.Opaque == nil {
+					return nil, errors.New("directive opaque is not implemented")
+				}
+				return ec.directives.Opaque(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(keys.OpaqueID); ok {
+				it.Cursor = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "limit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
