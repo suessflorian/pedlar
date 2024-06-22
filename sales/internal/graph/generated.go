@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
+	"github.com/suessflorian/pedlar/sales/pkg/model/paginate"
 	"github.com/suessflorian/pedlar/sales/pkg/model/sale"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -55,7 +56,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Sales func(childComplexity int, paginate *model.PaginationInput) int
+		Sales func(childComplexity int, paginate *paginate.Input) int
 	}
 
 	Sale struct {
@@ -75,7 +76,7 @@ type MutationResolver interface {
 	CreateSale(ctx context.Context, input model.NewSale) (*sale.Sale, error)
 }
 type QueryResolver interface {
-	Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.Sale, error)
+	Sales(ctx context.Context, paginate *paginate.Input) ([]*sale.Sale, error)
 }
 
 type executableSchema struct {
@@ -119,7 +120,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Sales(childComplexity, args["paginate"].(*model.PaginationInput)), true
+		return e.complexity.Query.Sales(childComplexity, args["paginate"].(*paginate.Input)), true
 
 	case "Sale.id":
 		if e.complexity.Sale.ID == nil {
@@ -323,10 +324,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_sales_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.PaginationInput
+	var arg0 *paginate.Input
 	if tmp, ok := rawArgs["paginate"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginate"))
-		arg0, err = ec.unmarshalOPaginationInput2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+		arg0, err = ec.unmarshalOPaginationInput2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋpaginateᚐInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -448,7 +449,7 @@ func (ec *executionContext) _Query_sales(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Sales(rctx, fc.Args["paginate"].(*model.PaginationInput))
+		return ec.resolvers.Query().Sales(rctx, fc.Args["paginate"].(*paginate.Input))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2814,8 +2815,8 @@ func (ec *executionContext) unmarshalInputNewSaleLineItemSale(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (model.PaginationInput, error) {
-	var it model.PaginationInput
+func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (paginate.Input, error) {
+	var it paginate.Input
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -2831,7 +2832,7 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 		case "cursor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
 			directive0 := func(ctx context.Context) (interface{}, error) {
-				return ec.unmarshalNID2githubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
+				return ec.unmarshalNID2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋkeysᚐOpaqueID(ctx, v)
 			}
 			directive1 := func(ctx context.Context) (interface{}, error) {
 				if ec.directives.Opaque == nil {
@@ -2844,10 +2845,12 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
-			if data, ok := tmp.(keys.OpaqueID); ok {
+			if data, ok := tmp.(*keys.OpaqueID); ok {
 				it.Cursor = data
+			} else if tmp == nil {
+				it.Cursor = nil
 			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "limit":
@@ -3899,7 +3902,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOPaginationInput2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx context.Context, v interface{}) (*model.PaginationInput, error) {
+func (ec *executionContext) unmarshalOPaginationInput2ᚖgithubᚗcomᚋsuessflorianᚋpedlarᚋsalesᚋpkgᚋmodelᚋpaginateᚐInput(ctx context.Context, v interface{}) (*paginate.Input, error) {
 	if v == nil {
 		return nil, nil
 	}

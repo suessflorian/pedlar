@@ -11,6 +11,7 @@ import (
 	"github.com/suessflorian/pedlar/sales/internal/graph"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
+	"github.com/suessflorian/pedlar/sales/pkg/model/paginate"
 	"github.com/suessflorian/pedlar/sales/pkg/model/sale"
 )
 
@@ -20,7 +21,7 @@ func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) 
 }
 
 // Sales is the resolver for the sales field.
-func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInput) ([]*sale.Sale, error) {
+func (r *queryResolver) Sales(ctx context.Context, paginate *paginate.Input) ([]*sale.Sale, error) {
 	sales := []*sale.Sale{
 		{
 			ID:        &keys.OpaqueID{ID: 1},
@@ -41,7 +42,6 @@ func (r *queryResolver) Sales(ctx context.Context, paginate *model.PaginationInp
 		},
 	}
 
-	keys.SetCodec(&sales, r.Keys)
 	return sales, nil
 }
 

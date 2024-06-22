@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 
@@ -33,11 +34,22 @@ func main() {
 		log.Fatalf("failed to setup key holder: %v", err)
 	}
 
-	resolver := &resolver.Resolver{Keys: holder}
+	resolver := &resolver.Resolver{}
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(
 		graph.Config{
 			Resolvers: resolver,
+			Directives: graph.DirectiveRoot{
+				Opaque: func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+					keys.SetCodec(obj, holder)
+					res, err = next(ctx)
+					if err != nil {
+						return nil, err
+					}
+					keys.SetCodec(res, holder)
+					return res, nil
+				},
+			},
 		},
 	))
 
