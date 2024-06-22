@@ -10,22 +10,22 @@ import (
 
 	"github.com/suessflorian/pedlar/sales/internal/graph"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
+	"github.com/suessflorian/pedlar/sales/internal/sales"
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
 	"github.com/suessflorian/pedlar/sales/pkg/model/paginate"
-	"github.com/suessflorian/pedlar/sales/pkg/model/sale"
 )
 
 // CreateSale is the resolver for the createSale field.
-func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) (*sale.Sale, error) {
+func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) (*sales.Sale, error) {
 	panic(fmt.Errorf("not implemented: CreateSale - createSale"))
 }
 
 // Sales is the resolver for the sales field.
-func (r *queryResolver) Sales(ctx context.Context, paginate *paginate.Input) ([]*sale.Sale, error) {
-	sales := []*sale.Sale{
+func (r *queryResolver) Sales(ctx context.Context, paginate *paginate.Input) ([]*sales.Sale, error) {
+	sales := []*sales.Sale{
 		{
 			ID:        &keys.OpaqueID{ID: 1},
-			LineItems: []sale.LineItem{
+			LineItems: []sales.LineItem{
 				// {
 				// 	ID:        id.WithCodec(r.Keys),
 				// 	ProductID: id.WithCodec(r.Keys),

@@ -1,8 +1,14 @@
-package sale
+package sales
 
 import (
+	"context"
+
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
 )
+
+type store interface {
+	CreateSale(context.Context, Sale)
+}
 
 type Sale struct {
 	ID        *keys.OpaqueID

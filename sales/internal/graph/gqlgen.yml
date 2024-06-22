@@ -24,10 +24,10 @@ models:
       - github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID
   Sale:
     model:
-      - github.com/suessflorian/pedlar/sales/pkg/model/sale.Sale
+      - github.com/suessflorian/pedlar/sales/internal/sales.Sale
   SaleLineItem:
     model:
-      - github.com/suessflorian/pedlar/sales/pkg/model/sale.LineItem
+      - github.com/suessflorian/pedlar/sales/internal/sales.LineItem
   PaginationInput:
     model:
       - github.com/suessflorian/pedlar/sales/pkg/model/paginate.Input
