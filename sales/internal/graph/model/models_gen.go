@@ -19,10 +19,5 @@ type NewSaleLineItemSale struct {
 	UnitPrice int           `json:"unit_price"`
 }
 
-type PaginationInput struct {
-	Cursor keys.OpaqueID `json:"cursor"`
-	Limit  int           `json:"limit"`
-}
-
 type Query struct {
 }

@@ -28,3 +28,6 @@ models:
   SaleLineItem:
     model:
       - github.com/suessflorian/pedlar/sales/pkg/model/sale.LineItem
+  PaginationInput:
+    model:
+      - github.com/suessflorian/pedlar/sales/pkg/model/paginate.Input
