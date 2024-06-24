@@ -26,8 +26,9 @@ type OpaqueID struct {
 // or decoding an external id.
 func (k *OpaqueID) WithCodec(c EncoderDecoder) *OpaqueID {
 	return &OpaqueID{
-		ID:    k.ID,
-		codec: c,
+		ID:       k.ID,
+		external: k.external,
+		codec:    c,
 	}
 }
 
@@ -71,11 +72,11 @@ func walkAndSetCodec(val reflect.Value, codec EncoderDecoder) {
 // If no codec is provided an error is thrown.
 func (k *OpaqueID) Decode(ctx context.Context) (int, error) {
 	if k.codec == nil {
-		return -1, fmt.Errorf("no codec set for HiddenID")
+		return -1, fmt.Errorf("need codec for decoding")
 	}
 
 	if k.external == "" {
-		return -1, fmt.Errorf("no stored external id within HiddenID to decode")
+		return -1, fmt.Errorf("no stored external id to decode")
 	}
 
 	return k.codec.Decode(ctx, k.external)
@@ -84,7 +85,7 @@ func (k *OpaqueID) Decode(ctx context.Context) (int, error) {
 func (k *OpaqueID) UnmarshalJSONContext(ctx context.Context, v interface{}) error {
 	s, ok := v.(string)
 	if !ok {
-		return fmt.Errorf("`ID` must be a string")
+		return fmt.Errorf("must be a string")
 	}
 	k.external = s
 	return nil
@@ -92,12 +93,12 @@ func (k *OpaqueID) UnmarshalJSONContext(ctx context.Context, v interface{}) erro
 
 func (k OpaqueID) MarshalJSONContext(ctx context.Context, w io.Writer) error {
 	if k.codec == nil {
-		return fmt.Errorf("no codec set for OpaqueID")
+		return fmt.Errorf("need codec for decoding")
 	}
 
 	encoded, err := k.codec.Encode(ctx, k.ID)
 	if err != nil {
-		return fmt.Errorf("failed to encode OpaqueID: %w", err)
+		return fmt.Errorf("failed to encode: %w", err)
 	}
 
 	_, err = w.Write([]byte(`"` + encoded + `"`))
@@ -107,7 +108,7 @@ func (k OpaqueID) MarshalJSONContext(ctx context.Context, w io.Writer) error {
 func (k *OpaqueID) UnmarshalGQLContext(ctx context.Context, v interface{}) error {
 	s, ok := v.(string)
 	if !ok {
-		return fmt.Errorf("`ID` must be a string")
+		return fmt.Errorf("must be a string")
 	}
 	k.external = s
 	return nil
@@ -115,12 +116,12 @@ func (k *OpaqueID) UnmarshalGQLContext(ctx context.Context, v interface{}) error
 
 func (k OpaqueID) MarshalGQLContext(ctx context.Context, w io.Writer) error {
 	if k.codec == nil {
-		return fmt.Errorf("no codec set for HiddenID")
+		return fmt.Errorf("need codec for decoding")
 	}
 
 	encoded, err := k.codec.Encode(ctx, k.ID)
 	if err != nil {
-		return fmt.Errorf("failed to encode HiddenID: %w", err)
+		return fmt.Errorf("failed to encode: %w", err)
 	}
 
 	_, err = w.Write([]byte(`"` + encoded + `"`))
@@ -140,7 +141,7 @@ func (oid *OpaqueID) Scan(value interface{}) error {
 	case int32:
 		oid.ID = int(v)
 	default:
-		return fmt.Errorf("cannot scan type %T into OpaqueID", value)
+		return fmt.Errorf("cannot scan type %T into %s", v, reflect.TypeOf(oid).Name())
 	}
 	return nil
 }

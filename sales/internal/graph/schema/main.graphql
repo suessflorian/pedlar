@@ -1,16 +1,24 @@
-directive @opaque on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+directive @goField(
+	forceResolver: Boolean
+	name: String
+	omittable: Boolean
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 
-type Sale {
+directive @opaque on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION | FIELD_DEFINITION
+
+type Item {
   id: ID! @opaque
-  line_items: [SaleLineItem!]!
+  details: ItemDetails!
+  children: [Item!]!
 }
 
-type SaleLineItem {
-  id: ID! @opaque
-  productID: ID! @opaque
-  quantity: Int!
-  unit_price: Int!
+type ItemDetails {
+  name: String!
+  description: String!
+  unit_scale: ItemUnitScale!
 }
+
+scalar ItemUnitScale
 
 input PaginationInput {
   cursor: ID! @opaque
@@ -18,19 +26,22 @@ input PaginationInput {
 }
 
 type Query {
-  sales(paginate: PaginationInput): [Sale!]!
+  items(paginate: PaginationInput): [Item!]!
+  item(id: ID @opaque): Item
 }
 
-input NewSale {
-  items: [NewSaleLineItemSale!]!
-}
-
-input NewSaleLineItemSale {
-  productID: ID! @opaque
-  quantity: Int!
-  unit_price: Int!
+input NewItem {
+  name: String!
+  description: String
+  unit_scale: ItemUnitScale
 }
 
 type Mutation {
-  createSale(input: NewSale!): Sale!
+  createItem(input: NewItem!): ConfirmCreateItem!
+}
+
+type ConfirmCreateItem {
+  similar: [Item!]!
+  details: ItemDetails!
+  confirm: Item! @goField(forceResolver: true)
 }

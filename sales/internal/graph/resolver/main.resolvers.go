@@ -6,43 +6,56 @@ package resolver
 
 import (
 	"context"
-	"fmt"
+	"strings"
 
 	"github.com/suessflorian/pedlar/sales/internal/graph"
 	"github.com/suessflorian/pedlar/sales/internal/graph/model"
-	"github.com/suessflorian/pedlar/sales/internal/sales"
+	"github.com/suessflorian/pedlar/sales/internal/items"
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
 	"github.com/suessflorian/pedlar/sales/pkg/model/paginate"
 )
 
-// CreateSale is the resolver for the createSale field.
-func (r *mutationResolver) CreateSale(ctx context.Context, input model.NewSale) (*sales.Sale, error) {
-	panic(fmt.Errorf("not implemented: CreateSale - createSale"))
+// Confirm is the resolver for the confirm field.
+func (r *confirmCreateItemResolver) Confirm(ctx context.Context, obj *model.ConfirmCreateItem) (*items.Item, error) {
+	return r.ItemsManager.CreateItem(ctx, *obj.Details)
 }
 
-// Sales is the resolver for the sales field.
-func (r *queryResolver) Sales(ctx context.Context, paginate *paginate.Input) ([]*sales.Sale, error) {
-	sales := []*sales.Sale{
-		{
-			ID:        &keys.OpaqueID{ID: 1},
-			LineItems: []sales.LineItem{
-				// {
-				// 	ID:        id.WithCodec(r.Keys),
-				// 	ProductID: id.WithCodec(r.Keys),
-				// 	Quantity:  100,
-				// 	UnitPrice: 23,
-				// },
-				// {
-				// 	ID:        id.WithCodec(r.Keys),
-				// 	ProductID: id.WithCodec(r.Keys),
-				// 	Quantity:  100,
-				// 	UnitPrice: 23,
-				// },
-			},
-		},
+// CreateItem is the resolver for the createItem field.
+func (r *mutationResolver) CreateItem(ctx context.Context, input items.Details) (*model.ConfirmCreateItem, error) {
+	if input.UnitScale == "" {
+		input.UnitScale = items.Unit
 	}
 
-	return sales, nil
+	if strings.TrimSpace(input.Description) == "" {
+		input.Description = ""
+	}
+
+	// TODO: perform search for similar items
+	return &model.ConfirmCreateItem{
+		Similar: []*items.Item{},
+		Details: &items.Details{
+			Name:        input.Name,
+			Description: input.Description,
+			UnitScale:   input.UnitScale,
+		},
+	}, nil
+}
+
+// Items is the resolver for the items field.
+func (r *queryResolver) Items(ctx context.Context, paginate *paginate.Paginate) ([]*items.Item, error) {
+	return r.ItemsManager.SearchItems(ctx, &items.ItemSearch{
+		Page: paginate,
+	})
+}
+
+// Item is the resolver for the item field.
+func (r *queryResolver) Item(ctx context.Context, id *keys.OpaqueID) (*items.Item, error) {
+	return r.ItemsManager.GetItem(ctx, id)
+}
+
+// ConfirmCreateItem returns graph.ConfirmCreateItemResolver implementation.
+func (r *Resolver) ConfirmCreateItem() graph.ConfirmCreateItemResolver {
+	return &confirmCreateItemResolver{r}
 }
 
 // Mutation returns graph.MutationResolver implementation.
@@ -51,5 +64,6 @@ func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 
+type confirmCreateItemResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

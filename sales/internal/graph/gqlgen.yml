@@ -16,18 +16,21 @@ resolver:
   filename_template: "{name}.resolvers.go"
 
 models:
-  Int:
-    model:
-      - github.com/99designs/gqlgen/graphql.Int
   ID:
     model:
       - github.com/suessflorian/pedlar/sales/pkg/keys.OpaqueID
-  Sale:
+  Item:
     model:
-      - github.com/suessflorian/pedlar/sales/internal/sales.Sale
-  SaleLineItem:
+      - github.com/suessflorian/pedlar/sales/internal/items.Item
+  NewItem:
     model:
-      - github.com/suessflorian/pedlar/sales/internal/sales.LineItem
+      - github.com/suessflorian/pedlar/sales/internal/items.Details
+  ItemDetails:
+    model:
+      - github.com/suessflorian/pedlar/sales/internal/items.Details
+  ItemUnitScale:
+    model:
+      - github.com/suessflorian/pedlar/sales/internal/items.UnitScale
   PaginationInput:
     model:
-      - github.com/suessflorian/pedlar/sales/pkg/model/paginate.Input
+      - github.com/suessflorian/pedlar/sales/pkg/model/paginate.Paginate

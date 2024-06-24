@@ -7,11 +7,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
 )
 
 type Keys struct {
-	Conn *pgx.Conn
+	Conn *pgxpool.Pool
 }
 
 func (k *Keys) GetActiveKeySet(ctx context.Context) (*keys.KeySet, error) {
@@ -37,7 +38,7 @@ func (k *Keys) RevokeKeySet(ctx context.Context, ID uuid.UUID) error {
 }
 
 func (k *Keys) KeySets(ctx context.Context, IDs ...uuid.UUID) ([]*keys.KeySet, error) {
-	rows, err := k.Conn.Query(ctx, "SELECT id, encryption_key, signing_key, public_key, expiry FROM keys WHERE id = ANY($1)", IDs)
+	rows, err := k.Conn.Query(ctx, "SELECT kid, encryption_key, signing_key, public_key, expiry FROM keys WHERE kid = ANY($1)", IDs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve keys: %w", err)
 	}

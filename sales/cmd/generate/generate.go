@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("failed to parse config: %v", err)
 	}
 
-	_, err = store.Conn(ctx, cfg.DatabaseURL)
+	_, err = store.Conn(ctx, cfg.DatabaseURL, "sales")
 	if err != nil {
 		log.Fatalf("failed to establish connection: %v", err)
 	}

@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS item_relationships;
+DELETE FUNCTION IF EXISTS check_cycle;

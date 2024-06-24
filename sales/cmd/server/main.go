@@ -12,6 +12,7 @@ import (
 	"github.com/suessflorian/pedlar/sales/internal/config"
 	"github.com/suessflorian/pedlar/sales/internal/graph"
 	"github.com/suessflorian/pedlar/sales/internal/graph/resolver"
+	"github.com/suessflorian/pedlar/sales/internal/items"
 	"github.com/suessflorian/pedlar/sales/internal/store"
 	"github.com/suessflorian/pedlar/sales/pkg/keys"
 )
@@ -24,7 +25,7 @@ func main() {
 		log.Fatalf("failed to parse config: %v", err)
 	}
 
-	conn, err := store.Conn(ctx, cfg.DatabaseURL)
+	conn, err := store.Conn(ctx, cfg.DatabaseURL, "sales")
 	if err != nil {
 		log.Fatalf("failed to establish connection: %v", err)
 	}
@@ -34,7 +35,9 @@ func main() {
 		log.Fatalf("failed to setup key holder: %v", err)
 	}
 
-	resolver := &resolver.Resolver{}
+	resolver := &resolver.Resolver{
+		ItemsManager: items.ItemManager{Store: &store.Items{Conn: conn}},
+	}
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(
 		graph.Config{

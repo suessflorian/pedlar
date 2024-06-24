@@ -34,20 +34,24 @@ func TestSetCodec(t *testing.T) {
 		type example struct {
 			ID *OpaqueID
 		}
-		ex := &example{ID: &OpaqueID{ID: 1}}
+		ex := &example{ID: &OpaqueID{ID: 1, external: "1"}}
 		SetCodec(ex, &codec)
 
 		checkCodec(t, ex.ID, &codec)
+		assert.Equal(t, ex.ID.ID, 1)
+		assert.Equal(t, ex.ID.external, "1")
 	})
 
 	t.Run("skips unexported simple", func(t *testing.T) {
 		type example struct {
 			id *OpaqueID
 		}
-		ex := &example{id: &OpaqueID{ID: 1}}
+		ex := &example{id: &OpaqueID{ID: 1, external: "1"}}
 		SetCodec(ex, &codec)
 
 		assert.Nil(t, ex.id.codec)
+		assert.Equal(t, ex.id.ID, 1)
+		assert.Equal(t, ex.id.external, "1")
 	})
 
 	t.Run("nested", func(t *testing.T) {
@@ -58,16 +62,21 @@ func TestSetCodec(t *testing.T) {
 			}
 		}
 		ex := &example{
-			ID: &OpaqueID{ID: 1},
+			ID: &OpaqueID{ID: 1, external: "1"},
 			Nest: struct {
 				ID *OpaqueID
-			}{ID: &OpaqueID{ID: 2}},
+			}{ID: &OpaqueID{ID: 2, external: "2"}},
 		}
 
 		SetCodec(ex, &codec)
 
 		checkCodec(t, ex.ID, &codec)
 		checkCodec(t, ex.Nest.ID, &codec)
+
+		assert.Equal(t, ex.ID.ID, 1)
+		assert.Equal(t, ex.Nest.ID.ID, 2)
+		assert.Equal(t, ex.ID.external, "1")
+		assert.Equal(t, ex.Nest.ID.external, "2")
 	})
 
 	t.Run("nil", func(t *testing.T) {
@@ -98,13 +107,19 @@ func TestSetCodec(t *testing.T) {
 			ProductID *OpaqueID
 		}
 		ex := &example{
-			ID:        &OpaqueID{ID: 1},
-			ProductID: &OpaqueID{ID: 2},
+			ID:        &OpaqueID{ID: 1, external: "1"},
+			ProductID: &OpaqueID{ID: 2, external: "2"},
 		}
 		SetCodec(ex, &codec)
 
 		checkCodec(t, ex.ID, &codec)
 		checkCodec(t, ex.ProductID, &codec)
+
+		assert.Equal(t, ex.ID.ID, 1)
+		assert.Equal(t, ex.ProductID.ID, 2)
+
+		assert.Equal(t, ex.ID.external, "1")
+		assert.Equal(t, ex.ProductID.external, "2")
 	})
 
 	t.Run("multiple nested and unexported", func(t *testing.T) {
@@ -119,10 +134,10 @@ func TestSetCodec(t *testing.T) {
 			ID  *OpaqueID
 		}
 		ex := &example{
-			ID: &OpaqueID{ID: 3},
+			ID: &OpaqueID{ID: 2, external: "2"},
 			Sub: nest{
 				NestNest: nestnest{
-					id: &OpaqueID{ID: 3},
+					id: &OpaqueID{ID: 3, external: "3"},
 				},
 			},
 		}
@@ -130,6 +145,12 @@ func TestSetCodec(t *testing.T) {
 
 		checkCodec(t, ex.ID, &codec)
 		assert.Nil(t, ex.Sub.NestNest.id.codec)
+
+		assert.Equal(t, ex.ID.ID, 2)
+		assert.Equal(t, ex.Sub.NestNest.id.ID, 3)
+
+		assert.Equal(t, ex.ID.external, "2")
+		assert.Equal(t, ex.Sub.NestNest.id.external, "3")
 	})
 }
 

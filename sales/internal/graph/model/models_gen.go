@@ -3,20 +3,16 @@
 package model
 
 import (
-	"github.com/suessflorian/pedlar/sales/pkg/keys"
+	"github.com/suessflorian/pedlar/sales/internal/items"
 )
 
+type ConfirmCreateItem struct {
+	Similar []*items.Item  `json:"similar"`
+	Details *items.Details `json:"details"`
+	Confirm *items.Item    `json:"confirm"`
+}
+
 type Mutation struct {
-}
-
-type NewSale struct {
-	Items []*NewSaleLineItemSale `json:"items"`
-}
-
-type NewSaleLineItemSale struct {
-	ProductID keys.OpaqueID `json:"productID"`
-	Quantity  int           `json:"quantity"`
-	UnitPrice int           `json:"unit_price"`
 }
 
 type Query struct {
